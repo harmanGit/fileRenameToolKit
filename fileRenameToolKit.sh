@@ -23,7 +23,7 @@ renameFileInFolder(){ #set this up this to use a path
       currentDate=`date +%Y-%m-%d`
    fi
 
-  for file in $(find . -name "$oldFileName*")
+  for file in $(find . -name "$oldFileName*") #BUG maybe use the string that contains instead of starting chars
     do
       if [[ "$file" != *$SCRIPTNAME* ]]; #not renaming this file itself
       then
