@@ -7,44 +7,63 @@ declare -r SCRIPTNAME="fileRenameToolKit.sh"
 declare -r CURRENTFILEPATH=$(readlink -m "$SCRIPTNAME")
 declare -r CURRENTDIRECTORY=$(pwd)
 
-renameFileInFolder(){ #set this up this to use a path
+fileCounter=1
+currentDate=""
+oldFileName=""
+newFileName=""
+requireNewFolder=false
 
-  read -p "Enter the first few letters of the file or folder: " oldFileName
-  read -p "Enter new file name: " newFileName
-  read -p "Append date at the end of file name ( y/n ): " requireData
-  read -p "Place files in a new folder ( y/n ): " newFolder
+userInput(){
+  read -p "Enter a few common letters in the $1 to be renamed: " oldFileNameTemp
+  read -p "Enter new name for the $1: " newFileNameTemp
+  read -p "Auto append date at the end ( y/n ): " requireDate
+  read -p "Place $1s in a new folder ( y/n ): " requireNewFolderTemp
 
-  local fileCounter=1
-  local currentDate=""
-
-  #$requireData = "$requireData" | awk '{print tolower($0)}' #BUG
-  if [[ "$requireData" == "y" || "$requireData" == "Y" ]];
-    then
+  oldFileName="$oldFileNameTemp"
+  newFileName="$newFileNameTemp"
+  
+  if [[ "$requireDate" == "y" || "$requireDate" == "Y" ]]; then
       currentDate=`date +%Y-%m-%d`
-   fi
-   
-   if [[ "$newFolder" == "y" || "$newFolder" == "Y" ]];
-	then
-		echo $CURRENTDIRECTORY
-		local newFileNameTemp="$newFileName$currentDate--$fileCounter"
-		mv $file "$newFileNameTemp"
-		mkdir  "$newFileName"
-		#mv "$newFileNameTemp" "$newFileName"
-		#(fileCounter++))
-		#else
-		#mv $file "$newFileName$currentDate--$fileCounter"
-		#((fileCounter++))
+  fi
+
+  if [[ "$requireNewFolderTemp" == "y" || "$requireNewFolderTemp" == "Y" ]]; then
+      requireNewFolder=true
+      mkdir "$newFileName"
+  fi
+}
+
+renamer(){
+	local newFileNameTemp="$newFileName$currentDate--$fileCounter"
+
+	if $requireNewFolder ; then
+		mv $1 "$newFileNameTemp"
+		mv "$newFileNameTemp" "$newFileName"
+		((fileCounter++))
+	else
+		mv $1 "$newFileNameTemp"
+		((fileCounter++))
 	fi
-	
-	echo "old code"
+}
+
+renameFiles(){
+userInput "file"
 
   for file in $(find . -name "$oldFileName*")
     do
-      if [[ "$file" != *$SCRIPTNAME* ]]; #not renaming this file itself
-      then
-            local newFileNameTemp="$newFileName$currentDate--$fileCounter"
-		mv $file "$newFileNameTemp"
-            ((fileCounter++))
+	#not renaming this file itself
+      if [[ "$file" != *$SCRIPTNAME* && -f "$file" ]]; then
+	renamer "$file"
+      fi
+  done
+}
+
+renameFolders(){
+userInput "folder"
+
+for file in $(find . -name "$oldFileName*")
+    do
+      if [[ -d "$file" ]]; then
+	renamer "$file"
       fi
   done
 }
@@ -72,8 +91,9 @@ fileLocationBasedOfName(){
 
 userMenu(){
   echo "Select A Number Below."
-  echo "  1. Rename all files/folders." #BUG fix this, allow picking of one
-  echo "  2. Find folder and rename files inside it."
+  echo "  1. Rename files."
+  echo "  2. Rename folders."
+  echo "  3. Find folder and rename files inside it."
   echo "  4. Cancel." #BUG fix this
 }
 
@@ -83,19 +103,16 @@ program(){
   read -p "Selection: " userOption
 
   case "$userOption" in
-  "1")
-      renameFileInFolder
+  1)
+      renameFiles
       ;;
   2)
-      fileLocationBasedOfName
+      renameFolders
       ;;
   3)
-      echo "This feature doesn't yet exist"
+      echo "NOT COMPLETE YET, Pick again..."
       ;;
   4)
-      echo "This feature doesn't yet exist"
-      ;;
-  5)
       echo "Exiting Skynet Compute Host [UPDATE BLOCKCHAIN LEDGER] ..."
       ;;
   *)
@@ -104,6 +121,6 @@ program(){
       ;;
   esac
 }
-#program starts Here
 
+#program starts Here
 program
