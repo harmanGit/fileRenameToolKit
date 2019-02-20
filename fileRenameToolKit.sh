@@ -13,7 +13,13 @@ oldObjectName=""
 newObjectName=""
 requireNewFolder=false
 
-userInput(){
+renamingUserInput(){
+  echo ""
+  echo "Files and or Folder From This Directory"
+  echo "----------------------------------------"
+  ls -1
+
+  echo ""
   read -p "Enter a few common letters in the $1 to be renamed: " oldObjectNameTemp
   read -p "Enter new name for the $1s: " newObjectNameTemp
   read -p "Auto append date at the end ( y/n ): " requireDate
@@ -46,7 +52,7 @@ renamer(){
 }
 
 renameFiles(){
-  userInput "file"
+  renamingUserInput "file"
 
   for file in $(find . -name "$oldObjectName*")
     do
@@ -58,7 +64,7 @@ renameFiles(){
 }
 
 renameFolders(){
-  userInput "folder"
+  renamingUserInput "folder"
 
   for file in $(find . -name "$oldObjectName*")
       do
@@ -81,49 +87,32 @@ objectsNotRenamed(){
 pathRenamer(){
   read -p "	Enter path to the folder where to rename files/folders: " filePath
 
-  cp $SCRIPTNAME $filePath
+  cd $filePath #check if its a valid directory
 
-  cd $filePath
-
-  echo "Select A Number Below."
-  echo "  1. Rename files."
-  echo "  2. Rename folders."
-  echo "  3. Cancel." #BUG fix this
-
-  read -p "Selection: " userPathOption
-  case "$userPathOption" in
-  1)
-      renameFiles
-      objectsNotRenamed
-      ;;
-  2)
-      renameFolders
-      objectsNotRenamed
-      ;;
-  3)
-      echo "Exiting Skynet Compute Host [UPDATE BLOCKCHAIN LEDGER] ..."
-      ;;
-  *)
-      echo "Invalid Choice, Pick again..."
-      program
-      ;;
-  esac
-
-  rm $SCRIPTNAME
+  if [[ -d "$filePath" ]]; then
+   userMenu false
+ else
+   return
+ fi
 }
 
 userMenu(){
-  echo "Select A Number Below."
-  echo "  1. Rename files."
-  echo "  2. Rename folders."
-  echo "  3. Rename files/folders in given file path."
-  echo "  4. Cancel." #BUG fix this
-}
+echo "Select A Number Below."
+echo "  1. Rename files."
+echo "  2. Rename folders."
 
-program(){
-  userMenu
+  if $1 ;then
+    echo "  3. Rename files/folders in given file path."
+    echo "  4. Cancel." #BUG fix this
+    read -p "Selection: " userOption
+  else
+    echo "  3. Cancel." #BUG fix this
+    read -p "Selection: " userOption
 
-  read -p "Selection: " userOption
+    if [[ $userOption -eq 3 ]] ;then
+      userOption=4
+    fi
+  fi
 
   case "$userOption" in
   1)
@@ -136,7 +125,6 @@ program(){
       ;;
   3)
       pathRenamer
-      #objectsNotRenamed
       ;;
   4)
       echo "Exiting Skynet Compute Host [UPDATE BLOCKCHAIN LEDGER] ..."
@@ -146,6 +134,10 @@ program(){
       program
       ;;
   esac
+}
+
+program(){
+  userMenu true
 }
 
 #program starts Here
