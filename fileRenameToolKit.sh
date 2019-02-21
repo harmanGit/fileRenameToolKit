@@ -77,11 +77,11 @@ renameFiles(){
 renameFolders(){
   renamingUserInput "folder"
   #looping through all files starting with the given oldObjectName
-  for file in $(find . -name "$oldObjectName*")
+  for folder in $(find . -name "$oldObjectName*")
       do
-        if [[ -d "$file" ]]; then
+        if [[ -d "$folder" ]]; then
 	         renamer "$folder"
-         fi
+        fi
   done
 }
 #Function is used to display an error message, if user attempt rename files
@@ -122,10 +122,10 @@ echo "  2. Rename folders."
 
   if $1 ;then
     echo "  3. Rename files/folders in given file path."
-    echo "  4. Cancel." #BUG fix this
+    echo "  4. Cancel."
     read -p "Selection: " userOption
   else
-    echo "  3. Cancel." #BUG fix this
+    echo "  3. Cancel."
     read -p "Selection: " userOption
 
     if [[ $userOption -eq 3 ]] ;then
@@ -146,7 +146,7 @@ echo "  2. Rename folders."
       pathRenamer
       ;;
   4)
-      echo "Exiting Skynet Compute Host [UPDATE BLOCKCHAIN LEDGER] ..."
+      return;
       ;;
   *)
       echo "Invalid Choice, Pick again..."
