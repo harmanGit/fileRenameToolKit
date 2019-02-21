@@ -7,17 +7,21 @@ declare -r SCRIPTNAME="fileRenameToolKit.sh"
 declare -r CURRENTFILEPATH=$(readlink -m "$SCRIPTNAME")
 declare -r CURRENTDIRECTORY=$(pwd)
 
-fileCounter=1
+fileCounter=1 #is appened at the end of each renamed object (also incremented)
 currentDate=""
 oldObjectName=""
 newObjectName=""
 requireNewFolder=false
 
+#Function gets user input related to how they want the objects renamed. This also takes
+#one parameter, which is the a string representing what kind of object is being renamed.
+#That parameter is used to output a menu to the user
 renamingUserInput(){
   echo ""
   echo "Files and or Folder From This Directory"
   echo "----------------------------------------"
-  ls -1
+  #displaying files to make it easy pick common letters, and to check if its the right directory
+  ls -1 
 
   echo ""
   read -p "Enter a few common letters in the $1 to be renamed: " oldObjectNameTemp
@@ -34,10 +38,13 @@ renamingUserInput(){
 
   if [[ "$requireNewFolderTemp" == "y" || "$requireNewFolderTemp" == "Y" ]]; then
       requireNewFolder=true
-      mkdir "$newObjectName"
+      mkdir "$newObjectName" #making the new directory
   fi
 }
 
+#Function renames the objects and or moves them depending on the requireNewFolder
+#variable (true equals rename and move). This also takes one parameter, the file to be
+#renamed.
 renamer(){
 	local newObjectNameTemp="$newObjectName$currentDate--$fileCounter"
 
@@ -51,29 +58,34 @@ renamer(){
 	fi
 }
 
+#Fuction is used when a file is being renamed. This calls the renamingUserInput
+#and also the renamer. 
 renameFiles(){
   renamingUserInput "file"
-
+  #looping through all files starting with the given oldObjectName
   for file in $(find . -name "$oldObjectName*")
     do
-	     #not renaming this file itself
+	     #not renaming this script itself
       if [[ "$file" != *$SCRIPTNAME* && -f "$file" ]]; then
 	       renamer "$file"
       fi
   done
 }
 
+#Fuction is used when a folder is being renamed. This calls the renamingUserInput
+#and also the renamer. 
 renameFolders(){
   renamingUserInput "folder"
-
+  #looping through all files starting with the given oldObjectName
   for file in $(find . -name "$oldObjectName*")
       do
         if [[ -d "$file" ]]; then
-	         renamer "$file"
+	         renamer "$folder"
          fi
   done
 }
-
+#Function is used to display an error message, if user attempt rename files
+#but none were ever renamed. Error message attempts to explain what issue may be. 
 objectsNotRenamed(){
   if [[ $fileCounter -eq 1 ]];then
     echo ""
@@ -84,8 +96,10 @@ objectsNotRenamed(){
   fi
 }
 
+#Function used to get the file path to the files that need to be renamed.
+#Also does a change directory based of the file path. Calls the userMenu
 pathRenamer(){
-  read -p "	Enter path to the folder where to rename files/folders: " filePath
+  read -p "  Enter path to the folder where to rename files/folders: " filePath
 
   cd $filePath #check if its a valid directory
 
@@ -96,6 +110,11 @@ pathRenamer(){
  fi
 }
 
+#Function is the main user menu for the user. Displays the appropriate
+#menu based of what the user has selected. One parameter, used to check
+#if the user has already selected the rename files/folders in given file
+#path option. This function calls renameFiles, objectsNotRenamed, 
+#renameFolders, and pathRenamer.
 userMenu(){
 echo "Select A Number Below."
 echo "  1. Rename files."
@@ -136,9 +155,9 @@ echo "  2. Rename folders."
   esac
 }
 
+#starts the main script
 program(){
   userMenu true
 }
 
-#program starts Here
 program
