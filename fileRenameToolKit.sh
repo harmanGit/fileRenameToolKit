@@ -48,17 +48,28 @@ renamingUserInput(){
 renamer(){
 	local newObjectNameTemp="$newObjectName$currentDate--$fileCounter"
 
-	if $requireNewFolder ; then
+	# Checking if folder to rename is empty or not. Can only rename empty files
+	if [[ -d "$1" && "$(ls -A $1)" ]]; then
+ 	    echo "Can not rename $1, as it is not Empty. Renaming could cause issues objects nested inside."
+
+	if $requireNewFolder ; then #if new folder was created, now its being removed
+		local folderToRemove=$(cd "$1")
+		rm -rf "$folderToRemove"
+	fi
+	
+	else
+  	  if $requireNewFolder ; then
 		mv $1 "$newObjectNameTemp"
 		mv "$newObjectNameTemp" "$newObjectName"
 		((fileCounter++))
 	else
 		mv $1 "$newObjectNameTemp"
 		((fileCounter++))
+	  fi
 	fi
 }
 
-#Fuction is used when a file is being renamed. This calls the renamingUserInput
+#Function is used when a file is being renamed. This calls the renamingUserInput
 #and also the renamer. 
 renameFiles(){
   renamingUserInput "file"
@@ -72,7 +83,7 @@ renameFiles(){
   done
 }
 
-#Fuction is used when a folder is being renamed. This calls the renamingUserInput
+#Function is used when a folder is being renamed. This calls the renamingUserInput
 #and also the renamer. 
 renameFolders(){
   renamingUserInput "folder"
