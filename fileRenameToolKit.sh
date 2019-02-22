@@ -51,18 +51,12 @@ renamer(){
 	# Checking if folder to rename is empty or not. Can only rename empty files
 	if [[ -d "$1" && "$(ls -A $1)" ]]; then
  	    echo "Can not rename $1, as it is not Empty. Renaming could cause issues objects nested inside."
-
-	if $requireNewFolder ; then #if new folder was created, now its being removed
-		local folderToRemove=$(cd "$1")
-		rm -rf "$folderToRemove"
-	fi
-	
 	else
   	  if $requireNewFolder ; then
 		mv $1 "$newObjectNameTemp"
 		mv "$newObjectNameTemp" "$newObjectName"
 		((fileCounter++))
-	else
+	  else
 		mv $1 "$newObjectNameTemp"
 		((fileCounter++))
 	  fi
@@ -81,6 +75,10 @@ renameFiles(){
 	       renamer "$file"
       fi
   done
+
+  if [[ $requireNewFolder && $fileCounter -eq 1 ]]; then #if new folder was created, now its being removed
+	$( rm -r $newObjectName )
+  fi
 }
 
 #Function is used when a folder is being renamed. This calls the renamingUserInput
@@ -94,6 +92,10 @@ renameFolders(){
 	         renamer "$folder"
         fi
   done
+
+  if [[ $requireNewFolder && $fileCounter -eq 1 ]]; then #if new folder was created, now its being removed	
+	$( rm -r $newObjectName )
+  fi
 }
 #Function is used to display an error message, if user attempt rename files
 #but none were ever renamed. Error message attempts to explain what issue may be. 
