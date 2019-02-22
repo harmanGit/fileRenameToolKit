@@ -3,7 +3,7 @@
 #@author Harman Dhillon
 
 #global final variable
-declare -r SCRIPTNAME="fileRenameToolKit.sh"
+declare -r SCRIPTNAME="script.sh"
 declare -r CURRENTFILEPATH=$(readlink -m "$SCRIPTNAME")
 declare -r CURRENTDIRECTORY=$(pwd)
 
@@ -12,6 +12,7 @@ currentDate=""
 oldObjectName=""
 newObjectName=""
 requireNewFolder=false
+shouldRemove=false
 
 #Function gets user input related to how they want the objects renamed. This also takes
 #one parameter, which is the a string representing what kind of object is being renamed.
@@ -50,6 +51,7 @@ renamer(){
 
 	# Checking if folder to rename is empty or not. Can only rename empty files
 	if [[ -d "$1" && "$(ls -A $1)" ]]; then
+	    shouldRemove=true
  	    echo "Can not rename $1, as it is not Empty. Renaming could cause issues objects nested inside."
 	else
   	  if $requireNewFolder ; then
@@ -76,7 +78,7 @@ renameFiles(){
       fi
   done
 
-  if [[ $fileCounter -eq 1 && $requireNewFolder ]]; then #if new folder was created, now its being removed	
+  if [[ $fileCounter -eq 1 && $requireNewFolder || $shouldRemove]]; then #if new folder was created, now its being removed
 	$( rm -r $newObjectName )
   fi
 }
@@ -93,7 +95,7 @@ renameFolders(){
         fi
   done
 
-  if [[ $fileCounter -eq 1 && $requireNewFolder ]]; then #if new folder was created, now its being removed	
+ if [[ $fileCounter -eq 1 && $requireNewFolder || $shouldRemove]]; then #if new folder was created, now its being removed	
 	$( rm -r $newObjectName )
   fi
 }
