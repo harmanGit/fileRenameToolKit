@@ -3,7 +3,7 @@
 #@author Harman Dhillon
 
 #global final variable
-declare -r SCRIPTNAME="script.sh"
+declare -r SCRIPTNAME="fileRenameToolKit.sh"
 declare -r CURRENTFILEPATH=$(readlink -m "$SCRIPTNAME")
 declare -r CURRENTDIRECTORY=$(pwd)
 
