@@ -76,7 +76,7 @@ renameFiles(){
       fi
   done
 
-  if [[ $requireNewFolder && $fileCounter -eq 1 ]]; then #if new folder was created, now its being removed
+  if [[ $fileCounter -eq 1 && $requireNewFolder ]]; then #if new folder was created, now its being removed	
 	$( rm -r $newObjectName )
   fi
 }
@@ -93,7 +93,7 @@ renameFolders(){
         fi
   done
 
-  if [[ $requireNewFolder && $fileCounter -eq 1 ]]; then #if new folder was created, now its being removed	
+  if [[ $fileCounter -eq 1 && $requireNewFolder ]]; then #if new folder was created, now its being removed	
 	$( rm -r $newObjectName )
   fi
 }
